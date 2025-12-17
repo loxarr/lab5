@@ -76,3 +76,97 @@ GROUP BY s.stadium_id, s.name, s.city
 ORDER BY s.name;
 ```
 <img width="387" height="113" alt="Снимок экрана 2025-12-17 в 16 37 57" src="https://github.com/user-attachments/assets/26e21fdf-e3b4-445d-acd5-918ec356ecd6" />
+
+5. Даты встреч команды, её противник и счёт
+```
+SELECT
+    m.date,
+    t_self.name  AS team_name,
+    t_opp.name   AS opponent_name,
+    m.home_score,
+    m.guest_score
+FROM match AS m
+JOIN team_match AS tm_self
+    ON tm_self.match_id = m.match_id
+JOIN team AS t_self
+    ON t_self.team_id = tm_self.team_id
+JOIN team_match AS tm_opp
+    ON tm_opp.match_id = m.match_id
+   AND tm_opp.team_id <> tm_self.team_id
+JOIN team AS t_opp
+    ON t_opp.team_id = tm_opp.team_id
+WHERE t_self.name = 'НПО «Зуев-Павлова»'
+AND m.status = 'played'
+ORDER BY m.date;
+```
+<img width="447" height="69" alt="Снимок экрана 2025-12-17 в 20 23 54" src="https://github.com/user-attachments/assets/5383f47b-8414-4a45-afd7-d2e0e2bc7450" />
+
+6. ФИО и номера игроков, участвовавших во встрече
+```
+SELECT DISTINCT
+    p.full_name,
+    p.number
+FROM match AS m
+JOIN team_match AS tm
+    ON tm.match_id = m.match_id
+JOIN team AS t
+    ON t.team_id = tm.team_id
+JOIN player_match AS pm
+    ON pm.match_id = m.match_id
+   AND pm.team_id  = t.team_id
+JOIN player AS p
+    ON p.player_id = pm.player_id
+WHERE t.name =  'Каменск-Уральский металлургический завод'
+  AND m.date = '2026-01-05'
+ORDER BY p.full_name;
+```
+<img width="278" height="243" alt="Снимок экрана 2025-12-17 в 20 28 28" src="https://github.com/user-attachments/assets/e60a7119-1c4c-49e8-b34e-097e3313cc83" />
+
+7. Результативность данного игрока в данной встрече
+```
+SELECT
+    p.full_name,
+    t.name      AS team_name,
+    m.date,
+    pm.goal_scored
+FROM match AS m
+JOIN team_match AS tm
+    ON tm.match_id = m.match_id
+JOIN team AS t
+    ON t.team_id = tm.team_id
+JOIN player_match AS pm
+    ON pm.match_id = m.match_id
+   AND pm.team_id  = t.team_id
+JOIN player AS p
+    ON p.player_id = pm.player_id
+WHERE t.name = 'Первый завод'
+  AND m.date = '2026-06-14'
+  AND p.full_name = 'Ладимир Александрович Маслов';
+```
+<img width="423" height="41" alt="Снимок экрана 2025-12-17 в 20 45 48" src="https://github.com/user-attachments/assets/15114e25-7eef-4cc0-9a33-fef718cf6380" />
+
+8. Цена билета на матч указанных команд
+```
+SELECT DISTINCT
+    m.match_id,
+    m.date,
+    s.name  AS stadium_name,
+    m.ticket_price
+FROM match AS m
+JOIN stadium AS s
+    ON s.stadium_id = m.stadium_id
+JOIN team_match AS tm1
+    ON tm1.match_id = m.match_id
+JOIN team AS t1
+    ON t1.team_id = tm1.team_id
+JOIN team_match AS tm2
+    ON tm2.match_id = m.match_id
+   AND tm2.team_id <> tm1.team_id
+JOIN team AS t2
+    ON t2.team_id = tm2.team_id
+WHERE t1.name = 'Каменск-Уральский металлургический завод'
+  AND t2.name = 'ОАО «Тетерин-Соболева»'
+  AND m.date = '2026-01-05';
+```
+<img width="334" height="39" alt="Снимок экрана 2025-12-17 в 20 44 21" src="https://github.com/user-attachments/assets/75c29358-e3e8-4419-a284-7443686674fe" />
+
